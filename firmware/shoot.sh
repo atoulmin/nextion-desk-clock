@@ -1,5 +1,6 @@
 #!/bin/bash
-# Run the simulator and capture frames at fixed times: shoot.sh <outdir> t1 t2 ...
+# Run the simulator demo and capture frames at fixed times: shoot.sh <outdir> t1 t2 ...
+# Needs Hyprland (hyprctl), grim and ImageMagick. DEMO_ENV=CLOCK_SETUP_DEMO=1 shows the setup screens.
 cd "$(dirname "$0")"
 out=$1; shift; mkdir -p "$out"
 SIM=desk-clock-sim
@@ -9,6 +10,10 @@ pid=$!
 start=$(date +%s.%N)
 for i in $(seq 100); do hyprctl clients -j | grep -q "\"$SIM\"" && break; sleep 0.1; done
 hyprctl clients -j | grep -q "\"$SIM\"" || { echo "simulator window never appeared"; kill -9 $pid; exit 1; }
+# Fully opaque, so the desktop doesn't show through inactive-window transparency
+hyprctl dispatch setprop "title:^$SIM\$" opaque 1 >/dev/null 2>&1
+hyprctl dispatch setprop "title:^$SIM\$" alpha 1 >/dev/null 2>&1
+hyprctl dispatch setprop "title:^$SIM\$" alphainactive 1 >/dev/null 2>&1
 G=$(hyprctl clients -j | python3 -c "
 import json,sys
 for c in json.load(sys.stdin):

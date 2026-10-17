@@ -1,5 +1,7 @@
-secrets.yaml
 .esphome/
 *.log
 shots/
 release/
+firmware/secrets.yaml
+__pycache__/
+.venv/
