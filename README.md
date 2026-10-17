@@ -85,6 +85,8 @@ and tick **Allow the device to perform Home Assistant actions**.
 
 ## Home Assistant entities
 
+<p align="center"><img src="docs/images/home-assistant-entities.png" width="560" alt="The Desk Clock's entities on its Home Assistant device page"></p>
+
 | Entity | What it does |
 |---|---|
 | `light.desk_clock_display` | Screen on/off and brightness |
