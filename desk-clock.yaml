@@ -52,10 +52,12 @@ wifi:
 
 captive_portal:
 
-# Home Assistant sets the clock and the time zone
+# Home Assistant sets the clock and the time zone; internet time keeps it going without HA
 time:
   - platform: homeassistant
     id: clock_time
+  - platform: sntp
+    id: sntp_time
 
 packages:
   common: !include clock_common.yaml
