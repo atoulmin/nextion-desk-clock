@@ -19,12 +19,6 @@ substitutions:
 esphome:
   name: ${name}
   friendly_name: ${friendly_name}
-  includes:
-    - lvgl_fast_mem.h
-  # Route LVGL's memory to internal RAM (see lvgl_fast_mem.h)
-  build_flags:
-    - -Wl,--wrap=lv_malloc_core
-    - -Wl,--wrap=lv_realloc_core
   on_boot:
     priority: -100
     then:
