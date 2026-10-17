@@ -1,9 +1,11 @@
-# Shared by the device and the simulator: the clock face, its fonts and the settings
-# Home Assistant can change. The including file must provide display id "lcd".
+# Shared by the device and the simulator: the clock face, the setup screens, fonts and
+# the settings Home Assistant can change. The including file must provide display id
+# "lcd" and the substitutions face_rotation and setup_ssid.
 
 esphome:
   includes:
     - clock_face.h
+    - setup_screen.h
 
 font:
   - file: "gfonts://Inter@500"
@@ -11,6 +13,18 @@ font:
     size: 14
     bpp: 4
     glyphs: " 0123456789ADEFHIMNORSTUW"
+  # Setup screens
+  - file: "gfonts://Inter@500"
+    id: f_small
+    size: 13
+    bpp: 4
+    glyphsets: [GF_Latin_Kernel]
+    glyphs: ["›"]
+  - file: "gfonts://Inter@600"
+    id: f_title
+    size: 19
+    bpp: 4
+    glyphsets: [GF_Latin_Kernel]
 
 lvgl:
   displays:
@@ -29,6 +43,18 @@ lvgl:
         - label:
             hidden: true
             text_font: f_date
+        - label:
+            hidden: true
+            text_font: f_small
+        - label:
+            hidden: true
+            text_font: f_title
+        - arc:
+            hidden: true
+        - qrcode:
+            hidden: true
+            size: 10
+            text: "x"
         - canvas:
             hidden: true
             width: 1
@@ -43,6 +69,8 @@ script:
           desk_clock::set_show_date(id(show_date).state);
           desk_clock::set_feedback(id(knob_feedback).state);
           desk_clock::build(lv_screen_active(), id(f_date).get_lv_font());
+          desk_clock_setup::build(id(f_small).get_lv_font(), id(f_title).get_lv_font(), "${setup_ssid}",
+                                  id(face_rotation).active_index().value_or(0) * 90);
 
 select:
   - platform: template
@@ -68,7 +96,9 @@ select:
     optimistic: true
     restore_value: true
     on_value:
-      - lambda: desk_clock::set_rotation(i * 90);
+      - lambda: |-
+          desk_clock::set_rotation(i * 90);
+          desk_clock_setup::set_rotation(i * 90);
 
 switch:
   - platform: template

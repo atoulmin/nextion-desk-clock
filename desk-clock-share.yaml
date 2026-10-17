@@ -1,0 +1,54 @@
+# Desk clock firmware to give away: no Wi-Fi details or keys are built in.
+#
+# Setting it up (the clock's screen walks through it):
+#  1. Power it on. With no Wi-Fi it opens a "Desk Clock Setup" hotspot and shows a QR
+#     code. Scan it (or join the hotspot) and the setup page opens: pick the home Wi-Fi
+#     and enter its password. (Or set Wi-Fi over USB at https://web.esphome.io.)
+#  2. On Wi-Fi it shows "Add me in Home Assistant". Home Assistant discovers it under
+#     Settings > Devices & services; click Add. Home Assistant creates the encryption
+#     key itself and installs it on the clock, so there is nothing to copy.
+#  3. The clock appears. For the batched dial event, tick "Allow the device to perform
+#     Home Assistant actions" in the device's ESPHome options.
+#
+# Flash over USB:  esphome run desk-clock-share.yaml --device /dev/ttyACM0
+# Or hand out release/desk-clock-<version>.factory.bin to flash at https://web.esphome.io.
+substitutions:
+  name: desk-clock
+  friendly_name: Desk Clock
+  # The desk stand holds the knob a quarter turn round from the wall plate
+  face_rotation: "90°"
+  # Steps per click of the dial, in the batched HA event and on screen
+  dial_step: "2"
+  setup_ssid: Desk Clock Setup
+
+esphome:
+  name: ${name}
+  friendly_name: ${friendly_name}
+  # Each clock gets its own network name (desk-clock-1a2b3c)
+  name_add_mac_suffix: true
+  # Keep its build apart from desk-clock.yaml, which has the same device name
+  build_path: build/desk-clock-share
+  project:
+    name: aaron.desk-clock
+    version: "1.0.0"
+
+# No key: Home Assistant generates one and installs it when the clock is added
+api:
+  encryption: {}
+
+ota:
+  - platform: esphome
+
+# With no Wi-Fi saved the hotspot starts straight away; if a saved network is
+# unreachable for a minute it comes back, so the clock can be moved to a new home
+wifi:
+  ap:
+    ssid: ${setup_ssid}
+
+captive_portal:
+
+# Wi-Fi setup over USB from https://web.esphome.io
+improv_serial:
+
+packages:
+  device: !include clock_device.yaml

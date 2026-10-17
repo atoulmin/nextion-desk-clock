@@ -2,8 +2,14 @@
 
 Analog desk clock firmware for the Open Nextion ONX2424G013 knob, for use with Home Assistant.
 
-- `desk-clock.yaml`: device firmware. `sim.yaml`: SDL preview (Up/Down = dial, Space = press, R = rotate, S = second hand).
-- `clock_face.h`: the clock face (LVGL draw calls). `clock_common.yaml`: shared fonts and settings.
+- `desk-clock.yaml`: my clock (Wi-Fi and API key from secrets.yaml).
+- `desk-clock-share.yaml`: firmware to give away. No Wi-Fi or keys built in; the clock shows a
+  QR code for its "Desk Clock Setup" hotspot, then "Add me in Home Assistant", and Home Assistant
+  creates and installs the API key itself when it's added. `release/` holds factory images for
+  https://web.esphome.io.
+- `clock_device.yaml`: hardware, entities and setup-screen logic shared by both.
+- `sim.yaml`: SDL preview (Up/Down = dial, Space = press, R = rotate, S = second hand, W = setup screens).
+- `clock_face.h`: the clock face. `setup_screen.h`: first-run screens. `clock_common.yaml`: fonts and settings.
 - Build: `~/Work/sat1-beam4-firmware/.venv/bin/esphome compile desk-clock.yaml`
 - Flash: `... esphome upload desk-clock.yaml --device <ip>`
 

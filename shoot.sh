@@ -4,7 +4,7 @@ cd "$(dirname "$0")"
 out=$1; shift; mkdir -p "$out"
 SIM=desk-clock-sim
 P=.esphome/build/$SIM/.pioenvs/$SIM/program
-CLOCK_DEMO=1 $P > sim-run.log 2>&1 &
+env ${DEMO_ENV:-CLOCK_DEMO=1} $P > sim-run.log 2>&1 &
 pid=$!
 start=$(date +%s.%N)
 for i in $(seq 100); do hyprctl clients -j | grep -q "\"$SIM\"" && break; sleep 0.1; done

@@ -1,0 +1,7 @@
+INFO ESPHome 2026.7.3
+INFO Reading configuration desk-clock.yaml...
+WARNING GPIO3 is a strapping PIN and should only be used for I/O with care.
+Attaching external pullup/down resistors to strapping pins can cause unexpected failures.
+See https://esphome.io/guides/faq/#why-am-i-getting-a-warning-about-strapping-pins
+WARNING Field 'transparency_key' is being redacted by a legacy substring heuristic. Mark this field's schema validator with cv.sensitive(...) for deterministic redaction; the heuristic will be removed in 2026.12.0.
+INFO Configuration is valid!
