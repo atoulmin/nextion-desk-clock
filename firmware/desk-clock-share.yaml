@@ -29,7 +29,7 @@ esphome:
   # Keep its build apart from desk-clock.yaml, which has the same device name
   build_path: build/desk-clock-share
   project:
-    name: aaron.desk-clock
+    name: atoulmin.nextion-desk-clock
     version: "1.0.0"
 
 # No key: Home Assistant generates one and installs it when the clock is added
