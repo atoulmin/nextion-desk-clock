@@ -13,8 +13,8 @@ The dial is relative: it says which way it turned, never a position, so it alway
 works from the controlled entity's current state.
 
 For brightness, volume and the like, use the batched Home Assistant event
-`esphome.desk_clock_dial`. Its `steps` is the number of detents turned in the last
-200 ms (positive = clockwise), so a fast spin makes a few big changes instead of
+`esphome.desk_clock_dial`. Its `steps` is the dial movement in the last 200 ms,
+2 per click (`dial_step` in desk-clock.yaml; positive = clockwise), so a fast spin makes a few big changes instead of
 queueing dozens of light commands. This needs "Allow the device to perform Home
 Assistant actions" ticked in the device's ESPHome options.
 

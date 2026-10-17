@@ -7,7 +7,7 @@
 #   event.desk_clock_button         single_press / double_press / long_press
 #   binary_sensor.desk_clock_button raw pressed / released
 #   event.desk_clock_dial           clockwise / anticlockwise, one event per detent
-#   HA event esphome.desk_clock_dial  {steps: n}, detents added up over 200 ms (+ = clockwise);
+#   HA event esphome.desk_clock_dial  {steps: n}, dial_step (2) per detent added up over 200 ms (+ = clockwise);
 #                                     needs "Allow the device to perform Home Assistant actions"
 #   config: Second hand (Smooth/Tick/Off), Face rotation, Show date, Knob feedback
 substitutions:
@@ -15,6 +15,8 @@ substitutions:
   friendly_name: Desk Clock
   # The desk stand holds the knob a quarter turn round from the wall plate
   face_rotation: "90°"
+  # Steps per click of the dial, in the batched HA event and on screen
+  dial_step: "2"
 
 esphome:
   name: ${name}
@@ -182,8 +184,8 @@ sensor:
     on_clockwise:
       - event.trigger: { id: dial_event, event_type: clockwise }
       - lambda: |-
-          desk_clock::turned(1);
-          id(dial_steps) += 1;
+          desk_clock::turned(${dial_step});
+          id(dial_steps) += ${dial_step};
       - if:
           condition:
             not:
@@ -193,8 +195,8 @@ sensor:
     on_anticlockwise:
       - event.trigger: { id: dial_event, event_type: anticlockwise }
       - lambda: |-
-          desk_clock::turned(-1);
-          id(dial_steps) -= 1;
+          desk_clock::turned(-${dial_step});
+          id(dial_steps) -= ${dial_step};
       - if:
           condition:
             not:
