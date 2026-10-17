@@ -64,19 +64,31 @@ binary_sensor:
     on_press:
       - select.next: second_hand
 
-# Scripted run for screenshots (CLOCK_DEMO=1): t=2 dial 8 clicks, t=3.5 press, t=5 rotate 90, t=6 tick mode
+# Scripted run for screenshots (CLOCK_DEMO=1): t=2 slow clockwise, t=2.6 fast clockwise
+# spin, t=3.9 fast anticlockwise spin, t=5.95 press, t=6.2 press again
 script:
   - id: demo
     then:
+      - select.set: { id: face_rotation, option: "0°" }
+      - select.set: { id: second_hand, option: Smooth }
       - delay: 2s
       - repeat:
-          count: 8
+          count: 4
           then:
             - lambda: desk_clock::turned(1);
-            - delay: 80ms
+            - delay: 150ms
+      - repeat:
+          count: 20
+          then:
+            - lambda: desk_clock::turned(1);
+            - delay: 25ms
       - delay: 800ms
+      - repeat:
+          count: 15
+          then:
+            - lambda: desk_clock::turned(-1);
+            - delay: 30ms
+      - delay: 1.6s
       - lambda: desk_clock::pressed();
-      - delay: 1s
-      - select.next: face_rotation
-      - delay: 1s
-      - select.next: second_hand
+      - delay: 250ms
+      - lambda: desk_clock::pressed();

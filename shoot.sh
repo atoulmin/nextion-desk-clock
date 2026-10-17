@@ -7,7 +7,8 @@ P=.esphome/build/$SIM/.pioenvs/$SIM/program
 CLOCK_DEMO=1 $P > sim-run.log 2>&1 &
 pid=$!
 start=$(date +%s.%N)
-until hyprctl clients -j | grep -q "\"$SIM\""; do :; done
+for i in $(seq 100); do hyprctl clients -j | grep -q "\"$SIM\"" && break; sleep 0.1; done
+hyprctl clients -j | grep -q "\"$SIM\"" || { echo "simulator window never appeared"; kill -9 $pid; exit 1; }
 G=$(hyprctl clients -j | python3 -c "
 import json,sys
 for c in json.load(sys.stdin):
@@ -17,5 +18,5 @@ for t in "$@"; do
   grim -g "$G" "$out/raw_$t.png"
   magick "$out/raw_$t.png" -resize 240x240! -fill none -stroke '#303030' -strokewidth 64 -draw 'circle 119.5,119.5 119.5,-32' "$out/t$t.png"
 done
-kill $pid
+kill -9 $pid
 cd "$out" && magick $(ls t*.png | sort -V) +append -scale 200% strip.png

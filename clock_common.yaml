@@ -15,7 +15,8 @@ font:
 lvgl:
   displays:
     - lcd
-  buffer_size: 100%
+  # A quarter-screen buffer fits in internal RAM, which renders much faster than PSRAM
+  buffer_size: 25%
   log_level: WARN
   pages:
     - id: main_page
@@ -28,6 +29,10 @@ lvgl:
         - label:
             hidden: true
             text_font: f_date
+        - canvas:
+            hidden: true
+            width: 1
+            height: 1
 
 script:
   - id: build_ui

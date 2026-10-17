@@ -19,6 +19,12 @@ substitutions:
 esphome:
   name: ${name}
   friendly_name: ${friendly_name}
+  includes:
+    - lvgl_fast_mem.h
+  # Route LVGL's memory to internal RAM (see lvgl_fast_mem.h)
+  build_flags:
+    - -Wl,--wrap=lv_malloc_core
+    - -Wl,--wrap=lv_realloc_core
   on_boot:
     priority: -100
     then:
@@ -30,6 +36,14 @@ esp32:
   flash_size: 16MB
   framework:
     type: esp-idf
+    # Espressif's LVGL tuning for the S3: optimise for speed and give the caches room,
+    # since the display buffers and images live partly in PSRAM
+    advanced:
+      compiler_optimization: PERF
+    sdkconfig_options:
+      CONFIG_ESP32S3_DATA_CACHE_64KB: y
+      CONFIG_ESP32S3_DATA_CACHE_LINE_64B: y
+      CONFIG_ESP32S3_INSTRUCTION_CACHE_32KB: y
 
 psram:
   mode: octal
@@ -105,7 +119,7 @@ display:
     dimensions:
       width: 240
       height: 240
-    data_rate: 40MHz
+    data_rate: 80MHz
     color_order: bgr
     invert_colors: true
     transform:
@@ -114,6 +128,37 @@ display:
       swap_xy: false
     auto_clear_enabled: false
     update_interval: never
+
+# Plays the knob animations without touching the knob or sending anything to HA
+# (hidden by default). Frame rates are logged at debug level when each one ends.
+button:
+  - platform: template
+    name: Animation test
+    entity_category: diagnostic
+    disabled_by_default: true
+    on_press:
+      - repeat:
+          count: 4
+          then:
+            - lambda: desk_clock::turned(1);
+            - delay: 150ms
+      - repeat:
+          count: 20
+          then:
+            - lambda: desk_clock::turned(1);
+            - delay: 25ms
+      - delay: 2s
+      - repeat:
+          count: 15
+          then:
+            - lambda: desk_clock::turned(-1);
+            - delay: 30ms
+      - delay: 2.5s
+      - lambda: desk_clock::pressed();
+      - delay: 2.5s
+      - lambda: desk_clock::pressed();
+      - delay: 250ms
+      - lambda: desk_clock::pressed();
 
 event:
   - platform: template
@@ -145,13 +190,23 @@ sensor:
       - lambda: |-
           desk_clock::turned(1);
           id(dial_steps) += 1;
-      - script.execute: send_dial_steps
+      - if:
+          condition:
+            not:
+              script.is_running: send_dial_steps
+          then:
+            - script.execute: send_dial_steps
     on_anticlockwise:
       - event.trigger: { id: dial_event, event_type: anticlockwise }
       - lambda: |-
           desk_clock::turned(-1);
           id(dial_steps) -= 1;
-      - script.execute: send_dial_steps
+      - if:
+          condition:
+            not:
+              script.is_running: send_dial_steps
+          then:
+            - script.execute: send_dial_steps
 
   - platform: wifi_signal
     name: WiFi signal
