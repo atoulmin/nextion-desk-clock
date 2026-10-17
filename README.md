@@ -9,23 +9,32 @@ Analog desk clock firmware for the Open Nextion ONX2424G013 knob, for use with H
 
 ## Using the knob in automations
 
-The dial sends one `event.desk_clock_dial` event per detent; use `mode: queued` so fast turns aren't dropped.
+The dial is relative: it says which way it turned, never a position, so it always
+works from the controlled entity's current state.
+
+For brightness, volume and the like, use the batched Home Assistant event
+`esphome.desk_clock_dial`. Its `steps` is the number of detents turned in the last
+200 ms (positive = clockwise), so a fast spin makes a few big changes instead of
+queueing dozens of light commands. This needs "Allow the device to perform Home
+Assistant actions" ticked in the device's ESPHome options.
+
+`event.desk_clock_dial` also fires once per detent (`clockwise` / `anticlockwise`),
+which is handy in the automation editor for one-step things like next/previous track.
 
 ```yaml
 automation:
-  - alias: Desk clock dial sets the desk lamp
+  - alias: Desk clock dial dims the living room
     mode: queued
     triggers:
-      - trigger: state
-        entity_id: event.desk_clock_dial
-        not_from: unavailable
+      - trigger: event
+        event_type: esphome.desk_clock_dial
     actions:
       - action: light.turn_on
-        target: { entity_id: light.desk_lamp }
+        target: { entity_id: light.living_room_lights }
         data:
-          brightness_step_pct: "{{ 5 if trigger.to_state.attributes.event_type == 'clockwise' else -5 }}"
+          brightness_step_pct: "{{ (trigger.event.data.steps | int) * 4 }}"
 
-  - alias: Desk clock button toggles the desk lamp
+  - alias: Desk clock button toggles the living room
     triggers:
       - trigger: state
         entity_id: event.desk_clock_button
@@ -34,5 +43,5 @@ automation:
       - "{{ trigger.to_state.attributes.event_type == 'single_press' }}"
     actions:
       - action: light.toggle
-        target: { entity_id: light.desk_lamp }
+        target: { entity_id: light.living_room_lights }
 ```

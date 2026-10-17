@@ -7,7 +7,8 @@
 #   event.desk_clock_button         single_press / double_press / long_press
 #   binary_sensor.desk_clock_button raw pressed / released
 #   event.desk_clock_dial           clockwise / anticlockwise, one event per detent
-#   sensor.desk_clock_dial_position running detent count
+#   HA event esphome.desk_clock_dial  {steps: n}, detents added up over 200 ms (+ = clockwise);
+#                                     needs "Allow the device to perform Home Assistant actions"
 #   config: Second hand (Smooth/Tick/Off), Face rotation, Show date, Knob feedback
 substitutions:
   name: desk-clock
@@ -130,8 +131,7 @@ event:
 sensor:
   - platform: rotary_encoder
     id: knob
-    name: Dial position
-    icon: mdi:knob
+    internal: true
     pin_a:
       number: GPIO48
       mode: INPUT_PULLUP
@@ -142,15 +142,46 @@ sensor:
     resolution: 2
     on_clockwise:
       - event.trigger: { id: dial_event, event_type: clockwise }
-      - lambda: desk_clock::turned(1);
+      - lambda: |-
+          desk_clock::turned(1);
+          id(dial_steps) += 1;
+      - script.execute: send_dial_steps
     on_anticlockwise:
       - event.trigger: { id: dial_event, event_type: anticlockwise }
-      - lambda: desk_clock::turned(-1);
+      - lambda: |-
+          desk_clock::turned(-1);
+          id(dial_steps) -= 1;
+      - script.execute: send_dial_steps
 
   - platform: wifi_signal
     name: WiFi signal
     update_interval: 60s
     entity_category: diagnostic
+
+# Detents turned but not yet sent to Home Assistant
+globals:
+  - id: dial_steps
+    type: int
+    initial_value: "0"
+
+script:
+  # Sends the detents in batches: the first goes 200 ms after the turn starts, then
+  # every 200 ms while it keeps turning, so a fast spin is a few big steps, not dozens
+  - id: send_dial_steps
+    mode: single
+    then:
+      - delay: 200ms
+      - if:
+          condition:
+            lambda: return id(dial_steps) != 0;
+          then:
+            - homeassistant.event:
+                event: esphome.desk_clock_dial
+                data_template:
+                  steps: "{{ steps | int }}"
+                variables:
+                  steps: !lambda return id(dial_steps);
+            - lambda: id(dial_steps) = 0;
 
 binary_sensor:
   # Knob push button
