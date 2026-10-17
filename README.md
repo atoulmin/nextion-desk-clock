@@ -4,7 +4,13 @@ An analog desk clock for Home Assistant, running ESPHome on the **Open Nextion O
 round knob display. It keeps time and shows the date, and its dial and button become Home
 Assistant controls for anything you like: dim the lights, change the volume, run a scene.
 
-<p align="center"><img src="docs/images/demo.gif" width="280" alt="Turning the dial and pressing the button"></p>
+<p align="center">
+  <img src="docs/images/concept-render.jpg" width="300" alt="Concept render of the clock on its desk stand">
+  <img src="docs/images/demo.gif" width="280" alt="Turning the dial and pressing the button">
+</p>
+<p align="center"><sub>Left: concept render, AI-generated with Grok. It's not a photo of the actual build;
+the real stand's shape is in the <a href="#desk-stand">desk stand renders</a>. Right: the
+firmware's animations, captured from the simulator.</sub></p>
 
 <p align="center">
   <img src="docs/images/face.png" width="150" alt="Clock face">
