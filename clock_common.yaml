@@ -1,0 +1,92 @@
+# Shared by the device and the simulator: the clock face, its fonts and the settings
+# Home Assistant can change. The including file must provide display id "lcd".
+
+esphome:
+  includes:
+    - clock_face.h
+
+font:
+  - file: "gfonts://Inter@500"
+    id: f_date
+    size: 14
+    bpp: 4
+    glyphs: " 0123456789ADEFHIMNORSTUW"
+
+lvgl:
+  displays:
+    - lcd
+  buffer_size: 100%
+  log_level: WARN
+  pages:
+    - id: main_page
+      bg_color: 0x0A0A0C
+      # Hidden placeholders: ESPHome only compiles the LVGL widgets and fonts the
+      # YAML uses, and the real face is built in clock_face.h
+      widgets:
+        - obj:
+            hidden: true
+        - label:
+            hidden: true
+            text_font: f_date
+
+script:
+  - id: build_ui
+    then:
+      - lambda: |-
+          desk_clock::set_rotation(id(face_rotation).active_index().value_or(0) * 90);
+          desk_clock::set_seconds(id(second_hand).active_index().value_or(0));
+          desk_clock::set_show_date(id(show_date).state);
+          desk_clock::set_feedback(id(knob_feedback).state);
+          desk_clock::build(lv_screen_active(), id(f_date).get_lv_font());
+
+select:
+  - platform: template
+    id: second_hand
+    name: Second hand
+    icon: mdi:timer-outline
+    entity_category: config
+    options: [Smooth, Tick, "Off"]
+    initial_option: Smooth
+    optimistic: true
+    restore_value: true
+    on_value:
+      - lambda: desk_clock::set_seconds(i);
+
+  # Turn the face to suit how the knob is mounted (the desk stand holds it a quarter turn round)
+  - platform: template
+    id: face_rotation
+    name: Face rotation
+    icon: mdi:screen-rotation
+    entity_category: config
+    options: ["0°", "90°", "180°", "270°"]
+    initial_option: "${face_rotation}"
+    optimistic: true
+    restore_value: true
+    on_value:
+      - lambda: desk_clock::set_rotation(i * 90);
+
+switch:
+  - platform: template
+    id: show_date
+    name: Show date
+    icon: mdi:calendar-today
+    entity_category: config
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_ON
+    on_turn_on:
+      - lambda: desk_clock::set_show_date(true);
+    on_turn_off:
+      - lambda: desk_clock::set_show_date(false);
+
+  # A dot on the rim follows the dial and the centre cap pulses on a press
+  - platform: template
+    id: knob_feedback
+    name: Knob feedback
+    icon: mdi:gesture-tap
+    entity_category: config
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_ON
+    on_turn_on:
+      - lambda: desk_clock::set_feedback(true);
+    on_turn_off:
+      - lambda: desk_clock::set_feedback(false);

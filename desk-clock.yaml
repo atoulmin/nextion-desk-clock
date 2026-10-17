@@ -1,0 +1,184 @@
+# Analog desk clock on the Open Nextion ONX2424G013 (ESP32-S3, 1.28" round GC9A01, rotary encoder).
+# The clock face lives in clock_face.h. The knob does nothing locally beyond a little
+# on-screen feedback: its turns and presses are Home Assistant entities for automations.
+#
+# Home Assistant entities:
+#   light.desk_clock_display        screen on/off and brightness
+#   event.desk_clock_button         single_press / double_press / long_press
+#   binary_sensor.desk_clock_button raw pressed / released
+#   event.desk_clock_dial           clockwise / anticlockwise, one event per detent
+#   sensor.desk_clock_dial_position running detent count
+#   config: Second hand (Smooth/Tick/Off), Face rotation, Show date, Knob feedback
+substitutions:
+  name: desk-clock
+  friendly_name: Desk Clock
+  # The desk stand holds the knob a quarter turn round from the wall plate
+  face_rotation: "90°"
+
+esphome:
+  name: ${name}
+  friendly_name: ${friendly_name}
+  on_boot:
+    priority: -100
+    then:
+      - script.execute: build_ui
+
+esp32:
+  board: esp32-s3-devkitc-1
+  variant: esp32s3
+  flash_size: 16MB
+  framework:
+    type: esp-idf
+
+psram:
+  mode: octal
+  speed: 80MHz
+
+logger:
+
+api:
+  encryption:
+    key: !secret desk_clock_api_key
+
+ota:
+  - platform: esphome
+    password: !secret desk_clock_ota_password
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: "Desk Clock Fallback"
+
+captive_portal:
+
+# Home Assistant sets the clock and the time zone
+time:
+  - platform: homeassistant
+    id: clock_time
+
+packages:
+  common: !include clock_common.yaml
+
+spi:
+  id: lcd_spi
+  clk_pin: GPIO5
+  mosi_pin: GPIO1
+
+output:
+  - platform: ledc
+    id: backlight_pwm
+    pin: GPIO6
+    # 25 kHz avoids the stripe artefacts the vendor saw at lower PWM rates
+    frequency: 25000Hz
+
+light:
+  - platform: monochromatic
+    id: backlight
+    name: Display
+    icon: mdi:clock-outline
+    output: backlight_pwm
+    restore_mode: RESTORE_DEFAULT_ON
+    default_transition_length: 500ms
+    # No point drawing a clock nobody can see
+    on_turn_off:
+      - delay: 600ms
+      - if:
+          condition:
+            light.is_off: backlight
+          then:
+            - lvgl.pause:
+    on_turn_on:
+      - lvgl.resume:
+
+display:
+  - platform: ili9xxx
+    id: lcd
+    model: GC9A01A
+    spi_id: lcd_spi
+    cs_pin: GPIO2
+    dc_pin: GPIO3
+    reset_pin: GPIO8
+    dimensions:
+      width: 240
+      height: 240
+    data_rate: 40MHz
+    color_order: bgr
+    invert_colors: true
+    transform:
+      mirror_x: true
+      mirror_y: false
+      swap_xy: false
+    auto_clear_enabled: false
+    update_interval: never
+
+event:
+  - platform: template
+    id: dial_event
+    name: Dial
+    icon: mdi:rotate-right
+    event_types: [clockwise, anticlockwise]
+  - platform: template
+    id: button_event
+    name: Button
+    icon: mdi:gesture-tap-button
+    device_class: button
+    event_types: [single_press, double_press, long_press]
+
+sensor:
+  - platform: rotary_encoder
+    id: knob
+    name: Dial position
+    icon: mdi:knob
+    pin_a:
+      number: GPIO48
+      mode: INPUT_PULLUP
+    pin_b:
+      number: GPIO47
+      mode: INPUT_PULLUP
+    # Count every detent
+    resolution: 2
+    on_clockwise:
+      - event.trigger: { id: dial_event, event_type: clockwise }
+      - lambda: desk_clock::turned(1);
+    on_anticlockwise:
+      - event.trigger: { id: dial_event, event_type: anticlockwise }
+      - lambda: desk_clock::turned(-1);
+
+  - platform: wifi_signal
+    name: WiFi signal
+    update_interval: 60s
+    entity_category: diagnostic
+
+binary_sensor:
+  # Knob push button
+  - platform: gpio
+    id: knob_button
+    name: Button
+    icon: mdi:gesture-tap-button
+    pin:
+      number: GPIO9
+      mode: INPUT_PULLUP
+      inverted: true
+    filters:
+      - delayed_on: 10ms
+      - delayed_off: 25ms
+    on_press:
+      - lambda: desk_clock::pressed();
+    on_multi_click:
+      - timing:
+          - ON for at most 400ms
+          - OFF for at most 300ms
+          - ON for at most 400ms
+          - OFF for at least 50ms
+        then:
+          - event.trigger: { id: button_event, event_type: double_press }
+      - timing:
+          - ON for at most 400ms
+          - OFF for at least 300ms
+        then:
+          - event.trigger: { id: button_event, event_type: single_press }
+      - timing:
+          - ON for at least 700ms
+        then:
+          - event.trigger: { id: button_event, event_type: long_press }

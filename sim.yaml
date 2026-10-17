@@ -1,0 +1,82 @@
+# Desktop preview of the desk clock (SDL window).
+# Up/Down = dial, Space = press, R = rotate face, S = second hand mode.
+substitutions:
+  face_rotation: "0°"
+
+esphome:
+  name: desk-clock-sim
+  on_boot:
+    priority: -100
+    then:
+      - script.execute: build_ui
+      - if:
+          condition:
+            lambda: return getenv("CLOCK_DEMO") != nullptr;
+          then:
+            - script.execute: demo
+
+host:
+  mac_address: "06:35:69:ab:f6:7a"
+
+logger:
+  level: INFO
+
+time:
+  - platform: host
+    id: clock_time
+
+packages:
+  common: !include clock_common.yaml
+
+display:
+  - platform: sdl
+    id: lcd
+    auto_clear_enabled: false
+    update_interval: never
+    dimensions:
+      width: 240
+      height: 240
+
+binary_sensor:
+  - platform: sdl
+    id: key_up
+    key: SDLK_UP
+    on_press:
+      - lambda: desk_clock::turned(1);
+  - platform: sdl
+    id: key_down
+    key: SDLK_DOWN
+    on_press:
+      - lambda: desk_clock::turned(-1);
+  - platform: sdl
+    id: key_space
+    key: SDLK_SPACE
+    on_press:
+      - lambda: desk_clock::pressed();
+  - platform: sdl
+    id: key_r
+    key: SDLK_r
+    on_press:
+      - select.next: face_rotation
+  - platform: sdl
+    id: key_s
+    key: SDLK_s
+    on_press:
+      - select.next: second_hand
+
+# Scripted run for screenshots (CLOCK_DEMO=1): t=2 dial 8 clicks, t=3.5 press, t=5 rotate 90, t=6 tick mode
+script:
+  - id: demo
+    then:
+      - delay: 2s
+      - repeat:
+          count: 8
+          then:
+            - lambda: desk_clock::turned(1);
+            - delay: 80ms
+      - delay: 800ms
+      - lambda: desk_clock::pressed();
+      - delay: 1s
+      - select.next: face_rotation
+      - delay: 1s
+      - select.next: second_hand
