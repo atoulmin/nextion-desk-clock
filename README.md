@@ -221,6 +221,7 @@ dimension can be changed at the top of the script. Ready-to-print STL files are 
 - **Shape:** a 95 × 95 mm square base, with a hollow neck that holds the face at 45°. The display centre sits 68 mm above the desk.
 - **Cable:** behind the knob there's 45 mm of straight space for a USB-C plug. The cable then runs down the neck and out through a groove under the base.
 - **Fixing:** the knob is held by two M1.6 screws, put in from underneath. The third nut is left free because it sits right beside the USB-C socket.
+- **Don't over-tighten:** if the screws are too tight, the knob's push button becomes stiff or stops clicking. Do them up gently, then press the knob. If the push feels stiff, back each screw off a little at a time until it presses smoothly. You can also use the screws to set how deep the knob sits.
 - **Printing:** print it upright on its base. No supports are needed, as nothing overhangs more than 45°.
 - **Orientation:** the stand holds the knob a quarter turn round, which is why the firmware defaults to a 90° face rotation.
 
