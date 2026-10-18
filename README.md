@@ -4,6 +4,11 @@ An analog desk clock for Home Assistant, running ESPHome on the **Open Nextion O
 round knob display. It keeps time and shows the date, and its dial and button become Home
 Assistant controls for anything you like: dim the lights, change the volume, run a scene.
 
+> [!IMPORTANT]
+> **Hobby project, shared for free. Use it at your own risk**, and follow the manufacturer's
+> recommendations for the Nextion device. Not affiliated with or endorsed by Open Nextion /
+> ITEAD. See [Disclaimer](#disclaimer).
+
 <p align="center">
   <img src="docs/images/concept-render.jpg" width="300" alt="Concept render of the clock on its desk stand">
   <img src="docs/images/demo.gif" width="280" alt="Turning the dial and pressing the button">
@@ -36,10 +41,6 @@ firmware's animations, captured from the simulator.</sub></p>
   Australian-size wall plate.
 
 ## Hardware
-
-> [!NOTE]
-> Use at your own risk, and follow the manufacturer's recommendations for the device. See
-> [Disclaimer](#disclaimer).
 
 - **Open Nextion ONX2424G013**: ESP32-S3 (16 MB flash, 8 MB PSRAM), 1.28" 240×240
   GC9A01 round screen, rotary encoder with push button, USB-C.
@@ -263,6 +264,10 @@ liability for any damage, injury, data loss or other problems arising from build
 - **3D-printed parts:** print in a material suited to where the part will live, and keep it
   away from heat sources and moisture. Check your prints for strength and fit before relying
   on them.
+- **Home Assistant control:** the dial and button can trigger any automation you set up. They
+  aren't safety devices. Don't use them for anything where a missed, delayed or accidental
+  press could cause harm, such as locks, alarms, heaters or medical equipment. Test your
+  automations, and keep the controlled devices' own switches and protections in place.
 
 ## Licence
 
