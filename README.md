@@ -230,7 +230,11 @@ dimension can be changed at the top of the script. Ready-to-print STL files are 
 
 - **Size:** a standard 73 × 115 mm Australian switch plate.
 - **Mounting:** the knob sits in a cup and the cable goes straight into the wall.
-- **Fixing:** it's held by its three M1.6 nuts.
+- **Fixing:** it's held by its three M1.6 nuts, with screws put in from the back.
+- **Don't over-tighten:** if the screws are too tight, the knob's push button becomes stiff or
+  stops clicking. Do them up gently, then press the knob. If the push feels stiff, back each
+  screw off a little at a time until it presses smoothly. You can also use the screws to set
+  how deep the knob sits.
 - **Cable plug:** the post beside the USB-C socket can be tight with chunky plugs.
 - **Orientation:** set the face rotation to suit how the plate is mounted.
 
