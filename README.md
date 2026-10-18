@@ -37,6 +37,10 @@ firmware's animations, captured from the simulator.</sub></p>
 
 ## Hardware
 
+> [!NOTE]
+> Use at your own risk, and follow the manufacturer's recommendations for the device. See
+> [Disclaimer](#disclaimer).
+
 - **Open Nextion ONX2424G013**: ESP32-S3 (16 MB flash, 8 MB PSRAM), 1.28" 240×240
   GC9A01 round screen, rotary encoder with push button, USB-C.
 - **For the desk stand**: 2 × M1.6 × 6 mm screws, 4 × 10 mm stick-on rubber feet, and a
@@ -238,6 +242,27 @@ dimension can be changed at the top of the script. Ready-to-print STL files are 
   how deep the knob sits.
 - **Cable plug:** the post beside the USB-C socket can be tight with chunky plugs.
 - **Orientation:** set the face rotation to suit how the plate is mounted.
+
+## Disclaimer
+
+This is a hobby project, shared in the hope it's useful. **Use it at your own risk.** It is
+provided "as is", without warranty of any kind (see the licence), and the author accepts no
+liability for any damage, injury, data loss or other problems arising from building or using it.
+
+- **Manufacturer's recommendations:** follow Open Nextion's (ITEAD's) documentation and
+  recommendations for the ONX2424G013, including its power supply, operating conditions and
+  handling. Use a good-quality USB-C power supply within the device's specified ratings.
+- **Warranty:** flashing custom firmware isn't supported by the manufacturer and may affect
+  your warranty. Nextion and ITEAD are trademarks of their respective owners. This project
+  is not affiliated with or endorsed by them.
+- **Electrical safety:** the knob runs on low-voltage USB power only. Any mains wiring, such as
+  installing a USB power outlet or supply in a wall for the wall plate, must be done by a
+  licensed electrician and comply with local regulations (in Australia, AS/NZS 3000).
+  Don't put a plug-pack or other mains supply inside a wall cavity unless it's rated and
+  installed for that.
+- **3D-printed parts:** print in a material suited to where the part will live, and keep it
+  away from heat sources and moisture. Check your prints for strength and fit before relying
+  on them.
 
 ## Licence
 
